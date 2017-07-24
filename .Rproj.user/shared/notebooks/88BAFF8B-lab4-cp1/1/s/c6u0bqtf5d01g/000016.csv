@@ -1,0 +1,15 @@
+"0","bootstrap(amostra, 
+                        mean(users), 
+                        R = 2000) %>% 
+    #CI.bca(probs = c(.025, .975))
+    CI.percentile(probs = c(.025, .975))
+"
+"1","           "
+"1","     2.5%"
+"1","    97.5%"
+"1","
+mean(users)"
+"1"," 2019.505"
+"1"," 2248.933"
+"1","
+"

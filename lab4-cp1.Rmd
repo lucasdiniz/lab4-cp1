@@ -20,24 +20,30 @@ dados = read_csv('github-users-committing-filetypes.csv')
 
 dados <- dados %>% mutate(data = sprintf("%d-%d-%d", the_year, the_month, month_day)) %>% filter(complete.cases(dados))
 
-dados <- dados %>% filter(file_extension == 'py' | file_extension == 'js')
-dados_weekend <- dados %>% filter(is.weekend(data))
+amostra = dados %>% filter(file_extension == 'go') %>% mutate(is_weekend = is.weekend(data))
 
-
-amostra_weekend = sample_n(dados_weekend, 500)
-amostra = sample_n(dados, 500)
-
-
-my_statistic <- function(x,i){
-  sum(x$file_extension[i]=='go')/length(x$file_extension) * 100
+pop <- function(x,i){
+  d = x[i,]
+  mean_week = d %>% filter(!is_weekend) %>% summarise(media = mean(users)) 
+  mean_weekend = d %>% filter(is_weekend) %>% summarise(media = mean(users)) 
+  return(mean_week$media/mean_weekend$media)
 }
 
-boot_proportion = boot(amostra, my_statistic, 5000)
-teste <- boot.ci(boot_proportion, conf = 0.95, type = "bca")
+desvio_fds <- function(x, i){
+  
+  d = x[i,]
+  d_sd = d %>% filter(is_weekend)
+  return(sd(d_sd$users))
+}
+
+b_pop = boot(amostra, pop, 5000)
+boot.ci(b_pop, conf = 0.95, type = "bca")
+
+b_sd = boot(amostra, desvio_fds, 5000)
+boot.ci(b_sd, conf = 0.95, type = "bca")
 
 
-boot_proportion_weekend = boot(amostra_weekend, my_statistic, 5000)
-teste <- boot.ci(boot_proportion_weekend, conf = 0.95, type = "bca")
+b_mean = bootstrap(amostra, mean(users), 5000) %>% CI.bca(probs = c(.025, .975))
 
 
 

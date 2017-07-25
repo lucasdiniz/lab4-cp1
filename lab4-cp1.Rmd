@@ -12,23 +12,39 @@ library('tidyverse')
 library('chron')
 library('resample')
 library('ggplot2')
+library('scales')
 
 dados = read_csv('github-users-committing-filetypes.csv')
 View(dados)
 
 dados <- dados %>% mutate(data = sprintf("%d-%d-%d", the_year, the_month, month_day)) %>% filter(complete.cases(.))
-dados_weekend <- dados %>% filter(is.weekend(data))
-dados_weekdays <- dados %>% filter(!is.weekend(data))
 
-dados_escolhidos <- dados %>% filter(file_extension == 'py' | file_extension == 'js')
+dados_py <- dados %>% filter(file_extension == 'py')
+dados_js <- dados %>% filter(file_extension == 'js')
 
-amostra = sample_n(dados, 1000)
+amostra_py = sample_n(dados_py, 300)
+amostra_js = sample_n(dados_py, 300)
 
-bootstrap(amostra, 
-          mean(users), 
-          R = 2000) %>% 
-    #CI.bca(probs = c(.025, .975))
-    CI.percentile(probs = c(.025, .975))
+boot_py <- bootstrap(amostra_py, mean(users))
+CI.bca(boot_py, probs = c(.025, .975))
+
+boot_js <- bootstrap(amostra_js, mean(users))
+CI.bca(boot_js, probs = c(.025, .975))
+
+
+boot_py <- bootstrap(amostra_py %>% filter(is.weekend(data)), mean(users))
+CI.bca(boot_py, probs = c(.025, .975))
+
+boot_py <- bootstrap(amostra_py %>% filter(!is.weekend(data)), mean(users))
+CI.bca(boot_py, probs = c(.025, .975))
+
+boot_js <- bootstrap(amostra_js %>% filter(is.weekend(data)), mean(users))
+CI.bca(boot_js, probs = c(.025, .975))
+
+boot_js <- bootstrap(amostra_js %>% filter(!is.weekend(data)), mean(users))
+CI.bca(boot_js, probs = c(.025, .975))
+
+
 ```
 
 Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.

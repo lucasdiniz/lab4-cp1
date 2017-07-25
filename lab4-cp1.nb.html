@@ -176,17 +176,22 @@ $(document).ready(function () {
 <p>Try executing this chunk by clicking the <em>Run</em> button within the chunk or by placing your cursor inside it and pressing <em>Ctrl+Shift+Enter</em>.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYm9vdHN0cmFwKGFtb3N0cmEsIFxuICAgICAgICAgICAgICAgICAgICAgICAgbWVhbih1c2VycyksIFxuICAgICAgICAgICAgICAgICAgICAgICAgUiA9IDIwMDApICU+JSBcbiAgICAjQ0kuYmNhKHByb2JzID0gYyguMDI1LCAuOTc1KSlcbiAgICBDSS5wZXJjZW50aWxlKHByb2JzID0gYyguMDI1LCAuOTc1KSlcblxuYGBgIn0= -->
-<pre class="r"><code>bootstrap(amostra, 
-                        mean(users), 
-                        R = 2000) %&gt;% 
-    #CI.bca(probs = c(.025, .975))
-    CI.percentile(probs = c(.025, .975))
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYm9vdF9wcm9wb3J0aW9uX3dlZWtlbmQgPSBib290KGFtb3N0cmFfd2Vla2VuZCwgbXlfc3RhdGlzdGljLCA1MDAwKVxuYm9vdC5jaShib290X3Byb3BvcnRpb25fd2Vla2VuZCwgY29uZiA9IDAuOTUsIHR5cGUgPSBcImJjYVwiKVxuXG5gYGAifQ== -->
+<pre class="r"><code>boot_proportion_weekend = boot(amostra_weekend, my_statistic, 5000)
+boot.ci(boot_proportion_weekend, conf = 0.95, type = &quot;bca&quot;)
 </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgICAgICAgICAgIDIuNSUgICAgOTcuNSVcbm1lYW4odXNlcnMpIDIwMTkuNTA1IDIyNDguOTMzXG4ifQ== -->
-<pre><code>                2.5%    97.5%
-mean(users) 2019.505 2248.933</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiQk9PVFNUUkFQIENPTkZJREVOQ0UgSU5URVJWQUwgQ0FMQ1VMQVRJT05TXG5CYXNlZCBvbiA1MDAwIGJvb3RzdHJhcCByZXBsaWNhdGVzXG5cbkNBTEwgOiBcbmJvb3QuY2koYm9vdC5vdXQgPSBib290X3Byb3BvcnRpb25fd2Vla2VuZCwgY29uZiA9IDAuOTUsIHR5cGUgPSBcImJjYVwiKVxuXG5JbnRlcnZhbHMgOiBcbkxldmVsICAgICAgIEJDYSAgICAgICAgICBcbjk1JSAgICggMS4yLCAgNC4wICkgIFxuQ2FsY3VsYXRpb25zIGFuZCBJbnRlcnZhbHMgb24gT3JpZ2luYWwgU2NhbGVcbiJ9 -->
+<pre><code>BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS
+Based on 5000 bootstrap replicates
+
+CALL : 
+boot.ci(boot.out = boot_proportion_weekend, conf = 0.95, type = &quot;bca&quot;)
+
+Intervals : 
+Level       BCa          
+95%   ( 1.2,  4.0 )  
+Calculations and Intervals on Original Scale</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -194,7 +199,7 @@ mean(users) 2019.505 2248.933</code></pre>
 <p>When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the <em>Preview</em> button or press <em>Ctrl+Shift+K</em> to preview the HTML file).</p>
 <!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIlIgTm90ZWJvb2siDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQpUaGlzIGlzIGFuIFtSIE1hcmtkb3duXShodHRwOi8vcm1hcmtkb3duLnJzdHVkaW8uY29tKSBOb3RlYm9vay4gV2hlbiB5b3UgZXhlY3V0ZSBjb2RlIHdpdGhpbiB0aGUgbm90ZWJvb2ssIHRoZSByZXN1bHRzIGFwcGVhciBiZW5lYXRoIHRoZSBjb2RlLiANCg0KVHJ5IGV4ZWN1dGluZyB0aGlzIGNodW5rIGJ5IGNsaWNraW5nIHRoZSAqUnVuKiBidXR0b24gd2l0aGluIHRoZSBjaHVuayBvciBieSBwbGFjaW5nIHlvdXIgY3Vyc29yIGluc2lkZSBpdCBhbmQgcHJlc3NpbmcgKkN0cmwrU2hpZnQrRW50ZXIqLiANCg0KYGBge3IsIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0V9DQpsaWJyYXJ5KCd0aWR5dmVyc2UnKQ0KbGlicmFyeSgnY2hyb24nKQ0KbGlicmFyeSgncmVzYW1wbGUnKQ0KbGlicmFyeSgnZ2dwbG90MicpDQoNCmRhZG9zID0gcmVhZF9jc3YoJ2dpdGh1Yi11c2Vycy1jb21taXR0aW5nLWZpbGV0eXBlcy5jc3YnKQ0KVmlldyhkYWRvcykNCg0KZGFkb3MgPC0gZGFkb3MgJT4lIG11dGF0ZShkYXRhID0gc3ByaW50ZigiJWQtJWQtJWQiLCB0aGVfeWVhciwgdGhlX21vbnRoLCBtb250aF9kYXkpKSAlPiUgZmlsdGVyKGNvbXBsZXRlLmNhc2VzKC4pKQ0KZGFkb3Nfd2Vla2VuZCA8LSBkYWRvcyAlPiUgZmlsdGVyKGlzLndlZWtlbmQoZGF0YSkpDQpkYWRvc193ZWVrZGF5cyA8LSBkYWRvcyAlPiUgZmlsdGVyKCFpcy53ZWVrZW5kKGRhdGEpKQ0KDQpkYWRvc19lc2NvbGhpZG9zIDwtIGRhZG9zICU+JSBmaWx0ZXIoZmlsZV9leHRlbnNpb24gPT0gJ3B5JyB8IGZpbGVfZXh0ZW5zaW9uID09ICdqcycpDQoNCmFtb3N0cmEgPSBzYW1wbGVfbihkYWRvcywgMTAwMCkNCg0KYm9vdHN0cmFwKGFtb3N0cmEsIA0KICAgICAgICAgIG1lYW4odXNlcnMpLCANCiAgICAgICAgICBSID0gMjAwMCkgJT4lIA0KICAgICNDSS5iY2EocHJvYnMgPSBjKC4wMjUsIC45NzUpKQ0KICAgIENJLnBlcmNlbnRpbGUocHJvYnMgPSBjKC4wMjUsIC45NzUpKQ0KYGBgDQoNCkFkZCBhIG5ldyBjaHVuayBieSBjbGlja2luZyB0aGUgKkluc2VydCBDaHVuayogYnV0dG9uIG9uIHRoZSB0b29sYmFyIG9yIGJ5IHByZXNzaW5nICpDdHJsK0FsdCtJKi4NCg0KV2hlbiB5b3Ugc2F2ZSB0aGUgbm90ZWJvb2ssIGFuIEhUTUwgZmlsZSBjb250YWluaW5nIHRoZSBjb2RlIGFuZCBvdXRwdXQgd2lsbCBiZSBzYXZlZCBhbG9uZ3NpZGUgaXQgKGNsaWNrIHRoZSAqUHJldmlldyogYnV0dG9uIG9yIHByZXNzICpDdHJsK1NoaWZ0K0sqIHRvIHByZXZpZXcgdGhlIEhUTUwgZmlsZSkuDQo=</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIlIgTm90ZWJvb2siDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQpUaGlzIGlzIGFuIFtSIE1hcmtkb3duXShodHRwOi8vcm1hcmtkb3duLnJzdHVkaW8uY29tKSBOb3RlYm9vay4gV2hlbiB5b3UgZXhlY3V0ZSBjb2RlIHdpdGhpbiB0aGUgbm90ZWJvb2ssIHRoZSByZXN1bHRzIGFwcGVhciBiZW5lYXRoIHRoZSBjb2RlLiANCg0KVHJ5IGV4ZWN1dGluZyB0aGlzIGNodW5rIGJ5IGNsaWNraW5nIHRoZSAqUnVuKiBidXR0b24gd2l0aGluIHRoZSBjaHVuayBvciBieSBwbGFjaW5nIHlvdXIgY3Vyc29yIGluc2lkZSBpdCBhbmQgcHJlc3NpbmcgKkN0cmwrU2hpZnQrRW50ZXIqLiANCg0KYGBge3IsIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0V9DQpsaWJyYXJ5KCd0aWR5dmVyc2UnKQ0KbGlicmFyeSgnY2hyb24nKQ0KbGlicmFyeSgncmVzYW1wbGUnKQ0KbGlicmFyeSgnZ2dwbG90MicpDQpsaWJyYXJ5KCdib290JykNCmxpYnJhcnkoJ3NjYWxlcycpDQoNCg0KZGFkb3MgPSByZWFkX2NzdignZ2l0aHViLXVzZXJzLWNvbW1pdHRpbmctZmlsZXR5cGVzLmNzdicpDQoNCmRhZG9zIDwtIGRhZG9zICU+JSBtdXRhdGUoZGF0YSA9IHNwcmludGYoIiVkLSVkLSVkIiwgdGhlX3llYXIsIHRoZV9tb250aCwgbW9udGhfZGF5KSkgJT4lIGZpbHRlcihjb21wbGV0ZS5jYXNlcyhkYWRvcykpDQoNCmRhZG9zIDwtIGRhZG9zICU+JSBmaWx0ZXIoZmlsZV9leHRlbnNpb24gPT0gJ3B5JyB8IGZpbGVfZXh0ZW5zaW9uID09ICdqcycpDQpkYWRvc193ZWVrZW5kIDwtIGRhZG9zICU+JSBmaWx0ZXIoaXMud2Vla2VuZChkYXRhKSkNCg0KDQphbW9zdHJhX3dlZWtlbmQgPSBzYW1wbGVfbihkYWRvc193ZWVrZW5kLCA1MDApDQphbW9zdHJhID0gc2FtcGxlX24oZGFkb3MsIDUwMCkNCg0KDQpteV9zdGF0aXN0aWMgPC0gZnVuY3Rpb24oeCxpKXsNCiAgc3VtKHgkZmlsZV9leHRlbnNpb25baV09PSdnbycpL2xlbmd0aCh4JGZpbGVfZXh0ZW5zaW9uKSAqIDEwMA0KfQ0KDQpib290X3Byb3BvcnRpb24gPSBib290KGFtb3N0cmEsIG15X3N0YXRpc3RpYywgNTAwMCkNCnRlc3RlIDwtIGJvb3QuY2koYm9vdF9wcm9wb3J0aW9uLCBjb25mID0gMC45NSwgdHlwZSA9ICJiY2EiKQ0KDQoNCmJvb3RfcHJvcG9ydGlvbl93ZWVrZW5kID0gYm9vdChhbW9zdHJhX3dlZWtlbmQsIG15X3N0YXRpc3RpYywgNTAwMCkNCnRlc3RlIDwtIGJvb3QuY2koYm9vdF9wcm9wb3J0aW9uX3dlZWtlbmQsIGNvbmYgPSAwLjk1LCB0eXBlID0gImJjYSIpDQoNCg0KDQpgYGANCg0KQWRkIGEgbmV3IGNodW5rIGJ5IGNsaWNraW5nIHRoZSAqSW5zZXJ0IENodW5rKiBidXR0b24gb24gdGhlIHRvb2xiYXIgb3IgYnkgcHJlc3NpbmcgKkN0cmwrQWx0K0kqLg0KDQpXaGVuIHlvdSBzYXZlIHRoZSBub3RlYm9vaywgYW4gSFRNTCBmaWxlIGNvbnRhaW5pbmcgdGhlIGNvZGUgYW5kIG91dHB1dCB3aWxsIGJlIHNhdmVkIGFsb25nc2lkZSBpdCAoY2xpY2sgdGhlICpQcmV2aWV3KiBidXR0b24gb3IgcHJlc3MgKkN0cmwrU2hpZnQrSyogdG8gcHJldmlldyB0aGUgSFRNTCBmaWxlKS4NCg==</div>
 
 
 

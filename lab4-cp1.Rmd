@@ -3,10 +3,17 @@ title: "R Notebook"
 output: html_notebook
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+#Analisando commits do github de 2016/2017
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+Nesta análise iremos explorar e analisar uma *amostra* de dados sobre commits no github realizados nos anos de 2016 e 2017. Os dados contem as seguintes variáveis:
 
+*file_extension*: Extensão do arquivo que foi feito commit.<br>
+*month_day*: Dia do mês em que foi feito o commit.<br>
+*the_month*: Mês no qual foi realizado o commit.<br>
+*the_year*: Ano no qual foi realizado o commit.<br>
+*users*: Quantidade de usuários que realizaram commits com a extensão em questão no dia especificado.<br>
+
+Logo abaixo temos a leitura/filtragem dos dados e importação de bibliotecas que utilizarei nessa análise.  
 ```{r, message=FALSE, warning=FALSE}
 library('tidyverse')
 library('chron')
@@ -15,12 +22,33 @@ library('ggplot2')
 library('boot')
 library('scales')
 
-
 dados = read_csv('github-users-committing-filetypes.csv')
 
 dados <- dados %>% mutate(data = sprintf("%d-%d-%d", the_year, the_month, month_day)) %>% filter(complete.cases(dados))
 
-amostra = dados %>% filter(file_extension == 'go') %>% mutate(is_weekend = is.weekend(data))
+```
+
+
+Com base nessas variáveis iremos escolher duas linguagens (*JavaScript* e *Go*) e responder duas perguntas sobre elas. A primeira pergunta é:
+
+##Pergunta 1: Para cada uma delas, há uma diferença significativa na sua popularidade durante a semana e durante o fim de semana? Essa diferença é grande?
+
+Para obter a resposta para esse primeira pergunta seguiremos os seguintes passos:
+
+###1: Filtrar os dados para as duas linguagens escolhidas
+Abaixo temos a filtragem para as duas linguagens escolhidas e temos ainda a adição de uma coluna auxiliar que nos informa se um dia é um final de semana ou não.
+
+```{r}
+
+amostra_go = dados %>% filter(file_extension == 'go') %>% mutate(is_weekend = is.weekend(data))
+amostra_js = dados %>% filter(file_extension == 'js') %>% mutate(is_weekend = is.weekend(data))
+
+```
+
+###2: Criar uma estatística customizada que viabilize calcular a popularidade de cada linguagem
+A estratégia utilizada foi a de calcular a proporção entre a média de usúarios que fazem commit naquela linguagem durante a semana e a média de usuários que fazem commit naquela linguagem durante o final de semana. Esta abordagem é interessante pois o valor da estatística em si já se torna bastante significativo. Se for maior do que *1* temos uma média de commits maior durante a semana, caso contrário a média de commits é maior durante o final de semana.
+
+```{r, message=FALSE, warning=FALSE}
 
 pop <- function(x,i){
   d = x[i,]
@@ -29,26 +57,86 @@ pop <- function(x,i){
   return(mean_week$media/mean_weekend$media)
 }
 
+```
+###3: Reamostrar a amostra utilizando bootstraping e gerar um intervalo de confiança para a estatística criada
+Esse passo é necessário para que a a distribuição amostral que estamos utilizando reflita mais fortemente a população como um todo, permitindo assim que possamos inferir dados sobre a população. Neste caso foram realizadas *5 mil* reamostragens a partir da amostra original.
+
+```{r}
+b_pop_go = bootstrap(amostra_go, pop, 5000)
+popularity_go = CI.bca(b_pop_go, c = probs(.025, .975))
+popularity_go
+```
+O intervalo de confiança gerado para a linguagem *Go* nos permite afirmar, com *95%* de confiança (Ou seja, o intervalo encontrado vai conter o valor real da estatística em 95% das vezes) que o valor da estatística que criamos está entre *1.679* e *1.750*. É interessante notar que o intervalo que obtivemos nunca toca o *1*, portanto, levando em conta o que foi dito no passo 2, é bastante prudente afirmar que *Go é mais popular durante a semana.*
+
+Já para a linguagem *JavaScript* o intervalo obtido foi o seguinte:
+
+```{r}
+b_pop_js = bootstrap(amostra_js, pop, 5000)
+popularity_js = CI.bca(b_pop_js, c = probs(.025, .975))
+popularity_js
+```
+Para a linguagem *JavaScript* o resultado foi bem parecido, com o valor da nossa estatística entre aproximadamente *1.7* e *1.8* com *95%* de certeza que o intervalo obtido contem o valor real (que reflete a população) da estatística. Portanto, podemos afirmar com bastante certeza que *JavaScript é uma linguagem mais popular durante a semana.*
+
+Uma breve visualização para ajudar a entender a relevância dos resultados obtidos. A linha laranja representa o ponto que separa as _linguagens de fim de semana_ das _linguagens de semana_.
+
+```{r, message=FALSE, warning=FALSE}
+df = data.frame(rbind(popularity_go, popularity_js))
+df$medida = rownames(df)
+df %>% 
+  ggplot(aes(x = c("GO", "JavaScript"), ymin = X2.5., ymax = X97.5.)) + 
+  geom_errorbar(width = .2) + 
+  geom_hline(yintercept = 1, colour = "darkorange") +
+  labs(title = "Intervalos de confiança para a estatística popularidade", x = "Linguagens analisadas", y = "Popularidae", subtitle = "Obs: popularidade = média de commits na semana / média de commits no final de semana")
+```
+
+A visualização acima deixa bem claro que séria necessária uma catástrofe estatística para que as linguagens analisadas fossem mais populares no final de semana. Rs.
+
+A segunda pergunta que iremos responder é a seguinte:
+
+##Pergunta 2: Existe uma diferença significativa entre as duas linguagens na sua variação de popularidade nos finais de semana?
+A abordagem que vamos utilizar para responder é a mesma utilizada na pergunta 1, com a diferença de que agora utilizaremos como estatística uma *medida de dispersão* o desvio padrão do número de usúarios que realizaram commits considerando *apenas* os fins de semana.
+
+```{r}
 desvio_fds <- function(x, i){
   
   d = x[i,]
   d_sd = d %>% filter(is_weekend)
   return(sd(d_sd$users))
 }
-
-b_pop = boot(amostra, pop, 5000)
-boot.ci(b_pop, conf = 0.95, type = "bca")
-
-b_sd = boot(amostra, desvio_fds, 5000)
-boot.ci(b_sd, conf = 0.95, type = "bca")
-
-
-b_mean = bootstrap(amostra, mean(users), 5000) %>% CI.bca(probs = c(.025, .975))
-
-
-
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+Agora realizando o bootstraping e calculando o intervalo de confiança para a linguagem *JavaScript*:
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+```{r}
+b_sd_js = bootstrap(amostra_js, desvio_fds, 5000)
+variation_js = CI.bca(b_sd_js, c = probs(.025, .975))
+variation_js
+  
+```
+
+A primeira vista é difiícil dizer se este é um desvio padrão alto ou baixo, vamos gerar um intervalo de confiança para a média para ter uma noção melhor:
+
+```{r}
+b_mean_js = bootstrap(amostra_js, mean(users), 5000)
+mean_js = CI.bca(b_mean_js, c = probs(.025, .975))
+mean_js
+```
+
+Pelo intervalo gerado para a média, percebemos que o desvio padrão obtido para a linguagem *JavaScript* é de aproximadamente *10%* da média, ou seja com *95%* de significância podemos afirmar que temos uma variação de apenas *10%* na quantidade de commits nos finais de semana em geral. Valor que não é muito alto, portanto *Não existe uma diferença significativa na variação de popularidade de JavaScript nos finais de semana.*
+
+Para *Go* vamos seguir a mesma lógica:
+
+```{r}
+b_sd_go = bootstrap(amostra_go, desvio_fds, 5000)
+variation_go = CI.bca(b_sd_go, c = probs(.025, .975))
+variation_go
+```
+
+Agora calculando um intevalo de confiança para a média:
+```{r}
+b_mean_go = bootstrap(amostra_go, mean(users), 5000)
+mean_go = CI.bca(b_mean_go, c = probs(.025, .975))
+mean_go
+```
+Para a linguagem *Go* temos nos finais de semana uma variação de popularidade em torno de *5%* da média de commits realizados. Variação ainda menor do que a linguagem anterior, portanto *Não existe uma diferença significativa na popularidade de Go nos finais de semana.*
+
